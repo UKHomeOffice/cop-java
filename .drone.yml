@@ -15,6 +15,40 @@ pipeline:
       environment: secrets
       event: deployment
 
+  build:
+    image: quay.io/ukhomeofficedigital/drone-docker
+    commands:
+      - docker build -t cop-java:${JAVA_VERSION} -f Dockerfile-${JAVA_VERSION} .
+    when:
+      event: push
+
+  vulnerability-scan:
+    image: quay.io/ukhomeofficedigital/anchore-submission:latest
+    dockerfile: Dockerfile-${JAVA_VERSION}
+    image_name: cop-java:${JAVA_VERSION}
+    local_image: true
+    tolerate: low
+    fail_on_detection: false
+    when:
+      branch: master
+      event: push
+
+  image_to_quay:
+    image: quay.io/ukhomeofficedigital/drone-docker
+    secrets:
+      - source: QUAY_USERNAME
+        target: DOCKER_USERNAME
+      - source: QUAY_PASSWORD
+        target: DOCKER_PASSWORD
+    registry: quay.io
+    repo: quay.io/ukhomeofficedigital/cop-java
+    dockerfile: Dockerfile-${JAVA_VERSION}
+    tags:
+      - ${JAVA_VERSION}
+    when:
+      event: push
+      branch: master
+
   notify:
     image: plugins/slack
     secrets: [ SLACK_WEBHOOK ]
@@ -31,3 +65,10 @@ pipeline:
       branch: master
       event: [ push, deployment ]
       status: [ success, failure ]
+
+matrix:
+  JAVA_VERSION:
+    - openjdk-7
+    - openjdk-7-alpine
+    - openjdk-8
+    - openjdk-8-alpine
