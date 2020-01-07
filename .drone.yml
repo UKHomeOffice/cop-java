@@ -14,6 +14,8 @@ pipeline:
     when:
       environment: secrets
       event: deployment
+      matrix:
+        JAVA_VERSION: openjdk-8-alpine
 
   build:
     image: quay.io/ukhomeofficedigital/drone-docker
@@ -22,16 +24,16 @@ pipeline:
     when:
       event: push
 
-#  vulnerability-scan:
-#    image: quay.io/ukhomeofficedigital/anchore-submission:latest
-#    dockerfile: Dockerfile-${JAVA_VERSION}
-#    image_name: cop-java:${JAVA_VERSION}
-#    local_image: true
-#    tolerate: low
-#    fail_on_detection: false
-#    when:
-#      branch: master
-#      event: push
+  vulnerability-scan:
+    image: quay.io/ukhomeofficedigital/anchore-submission:latest
+    dockerfile: Dockerfile-${JAVA_VERSION}
+    image_name: cop-java:${JAVA_VERSION}
+    local_image: true
+    tolerate: low
+    fail_on_detection: false
+    when:
+      branch: master
+      event: push
 
   image_to_quay:
     image: quay.io/ukhomeofficedigital/drone-docker
@@ -58,7 +60,7 @@ pipeline:
       {{#build.deployTo}}
         *{{repo.name}} - Build {{build.number}} - {{uppercasefirst build.deployTo}} - {{uppercase build.status}}*
       {{else}}
-        *{{repo.name}} - Build {{build.number}} - Development - {{uppercase build.status}}*
+        *{{repo.name}} - ${JAVA_VERSION} - Build {{build.number}} - Development - {{uppercase build.status}}*
       {{/build.deployTo}}
       {{build.link}}
     when:
