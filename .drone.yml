@@ -70,7 +70,6 @@ pipeline:
 
 matrix:
   JAVA_VERSION:
-    - openjdk-7
-    - openjdk-7-alpine
     - openjdk-8
     - openjdk-8-alpine
+    - openjdk-11
