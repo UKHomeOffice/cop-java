@@ -1,4 +1,5 @@
-FROM openjdk:8
+ARG JAVA_TAG=11
+FROM openjdk:$JAVA_TAG
 
 RUN apt-get update && apt-get -y upgrade && \
     apt-get autoremove

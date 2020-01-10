@@ -15,19 +15,20 @@ pipeline:
       environment: secrets
       event: deployment
       matrix:
-        JAVA_VERSION: openjdk-8-alpine
+        JAVA_VERSION: 11
 
   build:
     image: quay.io/ukhomeofficedigital/drone-docker
     commands:
-      - docker build -t cop-java:${JAVA_VERSION} -f Dockerfile-${JAVA_VERSION} .
+      - docker build -t cop-java:$${TAG_NAME} -f Dockerfile-$${DOCKER_FILENAME} --build-arg JAVA_TAG=$${JAVA_VERSION} .
+
     when:
       event: push
 
-  vulnerability-scan:
+  vulnerability_scan_matrix:
     image: quay.io/ukhomeofficedigital/anchore-submission:latest
-    dockerfile: Dockerfile-${JAVA_VERSION}
-    image_name: cop-java:${JAVA_VERSION}
+    dockerfile: Dockerfile-${DOCKER_FILENAME}
+    image_name: cop-java:${TAG_NAME}
     local_image: true
     tolerate: low
     fail_on_detection: false
@@ -35,21 +36,22 @@ pipeline:
       branch: master
       event: push
 
-  image_to_quay:
+  image_to_quay_matrix:
     image: quay.io/ukhomeofficedigital/drone-docker
     secrets:
-      - source: QUAY_USERNAME
-        target: DOCKER_USERNAME
-      - source: QUAY_PASSWORD
-        target: DOCKER_PASSWORD
-    registry: quay.io
-    repo: quay.io/ukhomeofficedigital/cop-java
-    dockerfile: Dockerfile-${JAVA_VERSION}
-    tags:
-      - ${JAVA_VERSION}
+    - source: QUAY_USERNAME
+      target: DOCKER_USERNAME
+    - source: QUAY_PASSWORD
+      target: DOCKER_PASSWORD
+    commands:
+      - docker build --rm=true -f Dockerfile-$${DOCKER_FILENAME} -t cop-java:$${TAG_NAME} --build-arg JAVA_TAG=$${TAG_NAME} . --pull=true --label org.label-schema.schema-version=1.0 --label org.label-schema.build-date="$(date)" --label org.label-schema.vcs-ref=$${TAG_NAME} --label org.label-schema.vcs-url="https://github.com/UKHomeOffice/cop-java.git"
+      - docker tag cop-java:$${TAG_NAME} quay.io/ukhomeofficedigital/cop-java:$${TAG_NAME}
+      - echo $${DOCKER_PASSWORD} | docker login -u $${DOCKER_USERNAME} --password-stdin quay.io
+      - docker push quay.io/ukhomeofficedigital/cop-java:$${TAG_NAME}
+      - docker rmi cop-java:$${TAG_NAME}
     when:
-      event: push
       branch: master
+      event: push
 
   notify:
     image: plugins/slack
@@ -60,7 +62,7 @@ pipeline:
       {{#build.deployTo}}
         *{{repo.name}} - Build {{build.number}} - {{uppercasefirst build.deployTo}} - {{uppercase build.status}}*
       {{else}}
-        *{{repo.name}} - ${JAVA_VERSION} - Build {{build.number}} - Development - {{uppercase build.status}}*
+        *{{repo.name}} - ${TAG_NAME} - Build {{build.number}} - Development - {{uppercase build.status}}*
       {{/build.deployTo}}
       {{build.link}}
     when:
@@ -69,7 +71,13 @@ pipeline:
       status: [ success, failure ]
 
 matrix:
-  JAVA_VERSION:
-    - openjdk-8
-    - openjdk-8-alpine
-    - openjdk-11
+  include:
+    - DOCKER_FILENAME: stretch
+      JAVA_VERSION: 8
+      TAG_NAME: openjdk-8
+    - DOCKER_FILENAME: stretch
+      JAVA_VERSION: 11
+      TAG_NAME: openjdk-11
+    - DOCKER_FILENAME: alpine
+      JAVA_VERSION: 8-alpine
+      TAG_NAME: openjdk-8-alpine
