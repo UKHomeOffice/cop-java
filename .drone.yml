@@ -44,7 +44,7 @@ pipeline:
     - source: QUAY_PASSWORD
       target: DOCKER_PASSWORD
     commands:
-      - docker build --rm=true -f Dockerfile-$${DOCKER_FILENAME} -t cop-java:$${TAG_NAME} --build-arg JAVA_TAG=$${TAG_NAME} . --pull=true --label org.label-schema.schema-version=1.0 --label org.label-schema.build-date="$(date)" --label org.label-schema.vcs-ref=$${TAG_NAME} --label org.label-schema.vcs-url="https://github.com/UKHomeOffice/cop-java.git"
+      - docker build --rm=true -f Dockerfile-$${DOCKER_FILENAME} -t cop-java:$${TAG_NAME} --build-arg JAVA_TAG=$${JAVA_VERSION} . --pull=true --label org.label-schema.schema-version=1.0 --label org.label-schema.build-date="$(date)" --label org.label-schema.vcs-ref=$${TAG_NAME} --label org.label-schema.vcs-url="https://github.com/UKHomeOffice/cop-java.git"
       - docker tag cop-java:$${TAG_NAME} quay.io/ukhomeofficedigital/cop-java:$${TAG_NAME}
       - echo $${DOCKER_PASSWORD} | docker login -u $${DOCKER_USERNAME} --password-stdin quay.io
       - docker push quay.io/ukhomeofficedigital/cop-java:$${TAG_NAME}
