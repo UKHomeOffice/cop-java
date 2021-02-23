@@ -13,7 +13,7 @@ steps:
   image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
   commands:
   - n=0; while [ "$n" -lt 60 ] && [ ! docker stats --no-stream ]; do n=$(( n + 1 )); sleep 1; done
-  - docker build -t cop-java:$openjdk-8 -f Dockerfile-$stretch --build-arg JAVA_TAG=$8 .
+  - docker build -t cop-java:openjdk-8 -f Dockerfile-stretch --build-arg JAVA_TAG=8 .
   when:
     event:
     - push
@@ -36,11 +36,11 @@ steps:
 - name: image_to_quay_matrix
   image: plugins/docker
   commands:
-  - docker build --rm=true -f Dockerfile-$stretch -t cop-java:$openjdk-8 --build-arg JAVA_TAG=$8 . --pull=true --label org.label-schema.schema-version=1.0 --label org.label-schema.build-date="$(date)" --label org.label-schema.vcs-ref=$openjdk-8 --label org.label-schema.vcs-url="https://github.com/UKHomeOffice/cop-java.git"
-  - docker tag cop-java:$openjdk-8 quay.io/ukhomeofficedigital/cop-java:$openjdk-8
+  - docker build --rm=true -f Dockerfile-stretch -t cop-java:openjdk-8 --build-arg JAVA_TAG=8 . --pull=true --label org.label-schema.schema-version=1.0 --label org.label-schema.build-date="$(date)" --label org.label-schema.vcs-ref=openjdk-8 --label org.label-schema.vcs-url="https://github.com/UKHomeOffice/cop-java.git"
+  - docker tag cop-java:openjdk-8 quay.io/ukhomeofficedigital/cop-java:openjdk-8
   - echo $${DOCKER_PASSWORD} | docker login -u $${DOCKER_USERNAME} --password-stdin quay.io
-  - docker push quay.io/ukhomeofficedigital/cop-java:$openjdk-8
-  - docker rmi cop-java:$openjdk-8
+  - docker push quay.io/ukhomeofficedigital/cop-java:openjdk-8
+  - docker rmi cop-java:openjdk-8
   environment:
     DOCKER_PASSWORD:
       from_secret: QUAY_PASSWORD
@@ -119,7 +119,7 @@ steps:
   image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
   commands:
   - n=0; while [ "$n" -lt 60 ] && [ ! docker stats --no-stream ]; do n=$(( n + 1 )); sleep 1; done
-  - docker build -t cop-java:$openjdk-11 -f Dockerfile-$stretch --build-arg JAVA_TAG=$11 .
+  - docker build -t cop-java:openjdk-11 -f Dockerfile-stretch --build-arg JAVA_TAG=11 .
   when:
     event:
     - push
@@ -142,11 +142,11 @@ steps:
 - name: image_to_quay_matrix
   image: plugins/docker
   commands:
-  - docker build --rm=true -f Dockerfile-$stretch -t cop-java:$openjdk-11 --build-arg JAVA_TAG=$11 . --pull=true --label org.label-schema.schema-version=1.0 --label org.label-schema.build-date="$(date)" --label org.label-schema.vcs-ref=$openjdk-11 --label org.label-schema.vcs-url="https://github.com/UKHomeOffice/cop-java.git"
-  - docker tag cop-java:$openjdk-11 quay.io/ukhomeofficedigital/cop-java:$openjdk-11
+  - docker build --rm=true -f Dockerfile-stretch -t cop-java:openjdk-11 --build-arg JAVA_TAG=11 . --pull=true --label org.label-schema.schema-version=1.0 --label org.label-schema.build-date="$(date)" --label org.label-schema.vcs-ref=openjdk-11 --label org.label-schema.vcs-url="https://github.com/UKHomeOffice/cop-java.git"
+  - docker tag cop-java:openjdk-11 quay.io/ukhomeofficedigital/cop-java:openjdk-11
   - echo $${DOCKER_PASSWORD} | docker login -u $${DOCKER_USERNAME} --password-stdin quay.io
-  - docker push quay.io/ukhomeofficedigital/cop-java:$openjdk-11
-  - docker rmi cop-java:$openjdk-11
+  - docker push quay.io/ukhomeofficedigital/cop-java:openjdk-11
+  - docker rmi cop-java:openjdk-11
   environment:
     DOCKER_PASSWORD:
       from_secret: QUAY_PASSWORD
@@ -206,7 +206,7 @@ steps:
   image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
   commands:
   - n=0; while [ "$n" -lt 60 ] && [ ! docker stats --no-stream ]; do n=$(( n + 1 )); sleep 1; done
-  - docker build -t cop-java:$openjdk-8-alpine -f Dockerfile-$alpine --build-arg JAVA_TAG=$8-alpine .
+  - docker build -t cop-java:openjdk-8-alpine -f Dockerfile-alpine --build-arg JAVA_TAG=8-alpine .
   when:
     event:
     - push
@@ -229,11 +229,11 @@ steps:
 - name: image_to_quay_matrix
   image: plugins/docker
   commands:
-  - docker build --rm=true -f Dockerfile-$alpine -t cop-java:$openjdk-8-alpine --build-arg JAVA_TAG=$8-alpine . --pull=true --label org.label-schema.schema-version=1.0 --label org.label-schema.build-date="$(date)" --label org.label-schema.vcs-ref=$openjdk-8-alpine --label org.label-schema.vcs-url="https://github.com/UKHomeOffice/cop-java.git"
-  - docker tag cop-java:$openjdk-8-alpine quay.io/ukhomeofficedigital/cop-java:$openjdk-8-alpine
+  - docker build --rm=true -f Dockerfile-alpine -t cop-java:openjdk-8-alpine --build-arg JAVA_TAG=8-alpine . --pull=true --label org.label-schema.schema-version=1.0 --label org.label-schema.build-date="$(date)" --label org.label-schema.vcs-ref=openjdk-8-alpine --label org.label-schema.vcs-url="https://github.com/UKHomeOffice/cop-java.git"
+  - docker tag cop-java:openjdk-8-alpine quay.io/ukhomeofficedigital/cop-java:openjdk-8-alpine
   - echo $${DOCKER_PASSWORD} | docker login -u $${DOCKER_USERNAME} --password-stdin quay.io
-  - docker push quay.io/ukhomeofficedigital/cop-java:$openjdk-8-alpine
-  - docker rmi cop-java:$openjdk-8-alpine
+  - docker push quay.io/ukhomeofficedigital/cop-java:openjdk-8-alpine
+  - docker rmi cop-java:openjdk-8-alpine
   environment:
     DOCKER_PASSWORD:
       from_secret: QUAY_PASSWORD
